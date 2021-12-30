@@ -15,7 +15,7 @@ interface Book {
     // markDamaged?(reason: string): void;
     markDamaged?: DamageLogger;
     // [propertyName: string]: any;
-};
+}
 
 interface Person {
     name: string;
@@ -36,8 +36,16 @@ interface Magazine {
     publisher: string;
 }
 
-interface ShelfItem  {
+interface ShelfItem {
     title: string;
 }
 
-export { Book, DamageLogger as Logger, Person, Author, Librarian, Magazine, ShelfItem };
+interface LibMgrCallback {
+    (err: Error | null, titles: string[] | null): void;
+}
+
+interface Callback<T> {
+    (err: Error, titles: T): void;
+}
+
+export { Book, DamageLogger as Logger, Person, Author, Librarian, Magazine, ShelfItem, LibMgrCallback, Callback };

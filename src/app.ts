@@ -1,4 +1,4 @@
-import { UL, RefBook , ReferenceItem, Library, Shelf } from './classes';
+import { UL, RefBook, ReferenceItem, Library, Shelf } from './classes';
 import { Category } from './enums';
 import {
     bookTitleTransform,
@@ -17,10 +17,14 @@ import {
     printBook,
     сheckoutBooks,
     printRefBook,
-    purge
+    purge,
+    getBooksByCategory,
+    logCategorySearch,
+    getBooksByCategoryPromise,
+    logSearchResults,
 } from './functions';
 import { Author, Book, Librarian, Logger, Magazine } from './interfaces';
-import { BookRequiredFields, PersonBook, UpdatedBook, СreateCustomerFunctionType } from './types';
+import { BookRequiredFields, PersonBook, Unpromisify, UpdatedBook, СreateCustomerFunctionType } from './types';
 
 // ===============================================================
 
@@ -164,7 +168,7 @@ if (flag) {
 const lib: Library = {
     id: 10,
     name: 'Library',
-    address: 'Belarus'
+    address: 'Belarus',
 };
 console.log(lib);
 
@@ -172,7 +176,7 @@ const inventory: Book[] = [
     { id: 10, title: 'The C Programming Language', author: 'K & R', available: true, category: Category.Software },
     { id: 11, title: 'Code Complete', author: 'Steve McConnell', available: true, category: Category.Software },
     { id: 12, title: '8-Bit Graphics with Cobol', author: 'A. B.', available: true, category: Category.Software },
-    { id: 13, title: 'Cool autoexec.bat Scripts!', author: 'C. D.', available: true, category: Category.Software }
+    { id: 13, title: 'Cool autoexec.bat Scripts!', author: 'C. D.', available: true, category: Category.Software },
 ];
 
 // const books: Book[] = purge(inventory);
@@ -181,7 +185,7 @@ const inventory: Book[] = [
 // console.log(numbers);
 
 const bookShelf: Shelf<Book> = new Shelf<Book>();
-inventory.forEach((book) => bookShelf.add(book));
+inventory.forEach(book => bookShelf.add(book));
 const title1: string = bookShelf.getFirst().title;
 console.log(bookShelf);
 console.log(title1);
@@ -189,10 +193,10 @@ console.log(title1);
 const magazines: Magazine[] = [
     { title: 'Programming Language Monthly', publisher: 'Code Mags' },
     { title: 'Literary Fiction Quarterly', publisher: 'College Press' },
-    { title: 'Five Points', publisher: 'GSU' }
+    { title: 'Five Points', publisher: 'GSU' },
 ];
 const magazineShelf = new Shelf<Magazine>();
-magazines.forEach((magazine) => magazineShelf.add(magazine));
+magazines.forEach(magazine => magazineShelf.add(magazine));
 const title2: string = magazineShelf.getFirst().title;
 console.log(magazineShelf);
 console.log(title2);
@@ -209,7 +213,7 @@ const bookRequiredFields: BookRequiredFields = {
     category: Category.CSS,
     pages: 102,
     title: 'Learning CSS',
-    markDamaged: null
+    markDamaged: null,
 };
 
 const updatedBook: UpdatedBook = {
@@ -219,7 +223,49 @@ const updatedBook: UpdatedBook = {
 const params: Parameters<СreateCustomerFunctionType> = ['Anna', 30, 'Minsk'];
 createCustomer(...params);
 
+const obj1 = new UL.UniversityLibrarian();
+// UL.UniversityLibrarian['prop'] = 'test'; // error: Cannot add property prop, object is not extensible
+console.log(obj1);
+obj1.name = 'Anna';
+obj1.assistCustomer('Boris');
 
+const obj2 = new UL.UniversityLibrarian();
+obj2.assistFaculty = null;
+// obj2.teachCommunity = null; // error: Cannot assign to read only property 'teachCommunity'
 
+const enc1 = new RefBook(1, 'Learn Typescript', 2020, 4);
+enc1.printItem();
 
+const obj3 = new UL.UniversityLibrarian();
+console.log(obj3);
+obj3.name = 'Anna';
+console.log(obj3.name);
+obj3.assistCustomer('Boris');
 
+const enc2 = new RefBook(1, 'Learn Typescript', 2020, 4);
+// enc2.copies = -10; // error: Invalid value
+enc2.copies = 15;
+
+console.log('Begin');
+getBooksByCategory(Category.JavaScript, logCategorySearch);
+getBooksByCategory(Category.Software, logCategorySearch);
+console.log('End');
+
+const fn1 = (titles: string[]) => {
+    console.log(titles);
+    return Promise.resolve(titles.length);
+};
+
+console.log('Begin');
+getBooksByCategoryPromise(Category.JavaScript)
+    .then(fn1)
+    .then((length: Unpromisify<ReturnType<typeof fn1>>) => console.log(length))
+    .catch(reason => console.log(reason));
+getBooksByCategoryPromise(Category.Software)
+    .then(titles => console.log(titles))
+    .catch(reason => console.log(reason));
+console.log('End');
+
+console.log('Begin');
+logSearchResults(Category.JavaScript).catch(err => console.log(err));
+console.log('End');

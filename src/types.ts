@@ -1,4 +1,4 @@
-import { createCustomer } from './functions';
+import { createCustomer, getBooksByCategoryPromise } from './functions';
 import { Author, Book, Person } from './interfaces';
 
 // type DamageLogger = (reason: string) => void;
@@ -36,3 +36,8 @@ type Param3<T> = T extends (p1: string,p2: number, p3: infer R) => symbol ? R : 
 type P1 = Param1<fn>;
 type P2 = Param2<fn>;
 type P3 = Param3<fn>;
+
+export type Unpromisify<T>  = T extends Promise<infer R> ? R : never;
+
+type p = ReturnType<typeof getBooksByCategoryPromise>;
+type dataType = Unpromisify<p>;
